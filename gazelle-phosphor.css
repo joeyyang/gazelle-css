@@ -1,0 +1,1765 @@
+/*
+ * ╔═══════════════════════════════════════════════════════════╗
+ * ║  PHOSPHOR.CSS  —  Gazelle  ·  P1 Green CRT Theme         ║
+ * ║                                                           ║
+ * ║  Inspired by: DEC VT100, Hazeltine 1500, Sanyo MBC-775   ║
+ * ║  Phosphor: P1 (green) with amber secondary accent        ║
+ * ║  Type: "Cascadia Code" → "SF Mono" → Menlo → Consolas    ║
+ * ╚═══════════════════════════════════════════════════════════╝
+ */
+
+
+/* ── DESIGN TOKENS ──────────────────────────────────────────── */
+
+:root {
+	/* Backgrounds — layered from void to surface */
+	--bg-void:    #010601;
+	--bg-deep:    #030903;
+	--bg-base:    #060e06;
+	--bg-mid:     #091509;
+	--bg-raised:  #0d1f0d;
+	--bg-surface: #112511;
+	--bg-hover:   #162d16;
+	--bg-active:  #1c3a1c;
+
+	/* Phosphor green — P1 emission spectrum */
+	--fg-ghost:   #142814;
+	--fg-mute:    #204420;
+	--fg-dim:     #2d6b2d;
+	--fg-base:    #3faa3f;
+	--fg-mid:     #55c455;
+	--fg-bright:  #7ddf7d;
+	--fg-max:     #b0ffb0;
+
+	/* Amber — secondary terminal accent (P3 phosphor family) */
+	--amber-dim:  #6b4200;
+	--amber:      #c07a00;
+	--amber-mid:  #e09a10;
+	--amber-hi:   #f5c030;
+	--amber-max:  #ffe066;
+
+	/* Cyan — interactive / link color */
+	--cyan-dim:   #004433;
+	--cyan:       #008866;
+	--cyan-mid:   #00bb99;
+	--cyan-hi:    #00eebb;
+	--cyan-max:   #aafff0;
+
+	/* Status */
+	--red-dim:    #550e00;
+	--red-base:   #bb2200;
+	--red-hi:     #ff4422;
+	--err-bg:     #1a0500;
+	--warn-bg:    #1a1400;
+
+	/* Borders */
+	--border-dim:  #0e280e;
+	--border-base: #183818;
+	--border-mid:  #226622;
+	--border-hi:   #2d8c2d;
+	--border-act:  #44bb44;
+
+	/* Typography */
+	--font: "Cascadia Code", "SF Mono", Menlo, Consolas, "Lucida Console", "Courier New", monospace;
+	--fs:   12px;
+	--lh:   1.45;
+
+	/* Glow helpers */
+	--glow-faint: 0 0 4px currentColor;
+	--glow-soft:  0 0 8px currentColor;
+	--glow-hard:  0 0 14px currentColor, 0 0 28px currentColor;
+}
+
+
+/* ── KEYFRAMES ──────────────────────────────────────────────── */
+
+@keyframes blink {
+	50% { opacity: 0; }
+}
+
+@keyframes softBlink {
+	0%, 45%, 55%, 100% { opacity: 1; }
+	50% { opacity: 0.15; }
+}
+
+@keyframes crtBoot {
+	0%   { opacity: 1; }
+	65%  { opacity: 1; }
+	88%  { opacity: 0.9; }
+	95%  { opacity: 0.4; }
+	100% { opacity: 0; }
+}
+
+@keyframes scanIn {
+	from { opacity: 0; clip-path: inset(50% 0 50% 0); }
+	to   { opacity: 1; clip-path: inset(0% 0 0% 0); }
+}
+
+@keyframes fadeUp {
+	from { opacity: 0; transform: translateY(6px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes phosphorFlicker {
+	0%, 100% { opacity: 1; }
+	7%   { opacity: 1; }
+	8%   { opacity: 0.96; }
+	9%   { opacity: 1; }
+	37%  { opacity: 1; }
+	37.5%{ opacity: 0.93; }
+	38%  { opacity: 1; }
+	71%  { opacity: 1; }
+	71.5%{ opacity: 0.97; }
+	72%  { opacity: 1; }
+	91%  { opacity: 1; }
+	91.5%{ opacity: 0.94; }
+	92%  { opacity: 1; }
+}
+
+@keyframes glowPulse {
+	0%, 100% { text-shadow: 0 0 5px var(--fg-dim); }
+	50%       { text-shadow: 0 0 12px var(--fg-mid), 0 0 24px var(--fg-dim); }
+}
+
+@keyframes borderPulse {
+	0%, 100% { border-color: var(--border-mid); }
+	50%       { border-color: var(--border-act); box-shadow: 0 0 8px rgba(68,187,68,0.3); }
+}
+
+@keyframes tickerScroll {
+	from { transform: translateX(100vw); }
+	to   { transform: translateX(-100%); }
+}
+
+
+/* ── RESET ──────────────────────────────────────────────────── */
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+
+/* ── BASE ───────────────────────────────────────────────────── */
+
+html {
+	width: 100%;
+}
+
+body {
+	width: 100%;
+	font-family: var(--font);
+	font-size: var(--fs);
+	line-height: var(--lh);
+	color: var(--fg-base);
+	min-width: 850px;
+	background-color: var(--bg-base);
+	/* Subtle phosphor-green radial warmth from the center — like a CRT's brighter center */
+	background-image: radial-gradient(
+		ellipse at 50% 35%,
+		rgba(30, 80, 30, 0.18) 0%,
+		rgba(10, 30, 10, 0.08) 45%,
+		transparent 70%
+	);
+	animation: phosphorFlicker 11.7s steps(1) infinite;
+}
+
+/* Text selection — inverted phosphor */
+::selection {
+	background: var(--fg-base);
+	color: var(--bg-deep);
+}
+
+/* Scrollbars — stay in theme */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-act); box-shadow: 0 0 6px var(--fg-dim); }
+
+
+/* ── LINKS ──────────────────────────────────────────────────── */
+
+a {
+	text-decoration: none;
+	border: none;
+	color: var(--cyan-mid);
+	transition: color 0.08s, text-shadow 0.12s;
+}
+
+a:hover {
+	text-decoration: none;
+	color: var(--cyan-hi);
+	text-shadow: 0 0 10px var(--cyan);
+}
+
+a.similar_artist {
+	background-color: var(--bg-raised);
+	display: block;
+	padding: 1px 6px;
+	color: var(--fg-bright);
+	border: 1px solid var(--border-mid);
+	font-size: 11px;
+	letter-spacing: 0.03em;
+	transition: background 0.08s;
+}
+
+a.similar_artist:hover {
+	background-color: var(--bg-active);
+	text-shadow: var(--glow-faint);
+}
+
+.similar_artist_header {
+	color: var(--amber-hi);
+	background-color: var(--bg-raised);
+	border: 1px solid var(--border-mid);
+	padding: 2px 6px;
+	font-size: 11px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+
+/* ── HEADINGS ───────────────────────────────────────────────── */
+
+h1, h2, h3, h4 {
+	margin: 5px 0;
+	font-weight: bold;
+	font-family: var(--font);
+}
+
+h2 {
+	text-align: center;
+	font-size: 13px;
+	color: var(--fg-bright);
+	text-shadow: 0 0 12px var(--fg-dim);
+	text-transform: uppercase;
+	letter-spacing: 0.18em;
+	padding: 4px 0;
+}
+
+h4 {
+	font-size: 11px;
+	color: var(--fg-mid);
+}
+
+p {
+	margin: 8px 5px;
+}
+
+li {
+	margin: 4px 15px;
+}
+
+/* ── FORM ELEMENTS ──────────────────────────────────────────── */
+
+input {
+	padding: 2px 6px;
+	font-family: var(--font);
+	font-size: 11px;
+	background: var(--bg-raised);
+	color: var(--fg-bright);
+	border: 1px solid var(--border-base);
+	outline: none;
+	transition: border-color 0.12s, box-shadow 0.12s, color 0.08s;
+}
+
+input:focus {
+	border-color: var(--border-act);
+	box-shadow: 0 0 8px rgba(68,187,68,0.25), inset 0 0 3px rgba(68,187,68,0.1);
+	color: var(--fg-max);
+}
+
+textarea {
+	padding: 3px 6px;
+	font-family: var(--font);
+	font-size: 11px;
+	background: var(--bg-raised);
+	color: var(--fg-bright);
+	border: 1px solid var(--border-base);
+	outline: none;
+	transition: border-color 0.12s, box-shadow 0.12s;
+	resize: vertical;
+}
+
+textarea:focus {
+	border-color: var(--border-act);
+	box-shadow: 0 0 8px rgba(68,187,68,0.25);
+}
+
+select {
+	font-family: var(--font);
+	font-size: 11px;
+	background: var(--bg-raised);
+	color: var(--fg-bright);
+	border: 1px solid var(--border-base);
+	padding: 1px 4px;
+	outline: none;
+}
+
+input[type="submit"],
+input[type="button"] {
+	background: var(--bg-raised);
+	color: var(--fg-mid);
+	border: 1px solid var(--border-mid);
+	cursor: pointer;
+	padding: 2px 10px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	font-size: 10px;
+	transition: background 0.08s, color 0.08s, box-shadow 0.1s, border-color 0.08s;
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover {
+	background: var(--border-mid);
+	color: var(--bg-deep);
+	box-shadow: 0 0 10px var(--fg-dim);
+	border-color: var(--border-act);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	accent-color: var(--fg-bright);
+}
+
+img {
+	border: none;
+}
+
+blockquote {
+	margin: 6px 0;
+	padding: 5px 10px 5px 12px;
+	border-left: 2px solid var(--border-mid);
+	color: var(--fg-dim);
+	background: var(--bg-mid);
+	font-size: 11px;
+}
+
+
+/* ── RATIO COLORS ───────────────────────────────────────────── */
+/* Bad → amber → green: terminal warning palette */
+
+.r00 { color: var(--red-hi);   text-shadow: 0 0 7px var(--red-base); }
+.r01 { color: #ee4411; }
+.r02 { color: #e85511; }
+.r03 { color: #e06611; }
+.r04 { color: #d07700; }
+.r05 { color: var(--amber-hi); }
+.r06 { color: var(--amber-mid); }
+.r07 { color: #c88a00; }
+.r08 { color: #b07a00; }
+.r09 { color: #997000; }
+.r10 { color: var(--fg-mid); }
+.r20 { color: var(--fg-bright); }
+.r50 { color: var(--fg-bright); text-shadow: 0 0 5px var(--fg-base); }
+.r99 { color: var(--fg-max);    text-shadow: 0 0 10px var(--fg-bright), 0 0 20px var(--fg-dim); }
+
+
+/* ── BBCODE SIZES ───────────────────────────────────────────── */
+
+span.size1  { font-size: 0.75em; }
+span.size2  { font-size: 1em; }
+span.size3  { font-size: 1.2em; }
+span.size4  { font-size: 1.4em; }
+span.size5  { font-size: 1.6em; }
+span.size6  { font-size: 1.85em; }
+span.size7  { font-size: 2.1em; }
+span.size8  { font-size: 2.35em; }
+span.size9  { font-size: 2.6em; }
+span.size10 { font-size: 3em; }
+
+ul.thin {
+	margin: 0 0 0 20px;
+	padding: 0;
+}
+
+ul.thin li {
+	margin: 0;
+	padding: 0;
+}
+
+
+/* ── LAYOUT — EVERY PAGE ────────────────────────────────────── */
+
+#header {
+	width: 100%;
+	padding: 0;
+}
+
+#content {
+	margin: auto;
+	width: 100%;
+	overflow: hidden;
+	background-color: var(--bg-base);
+	position: relative;
+	top: 60px;
+	min-width: 850px;
+	animation: fadeUp 0.4s ease-out 0.9s both;
+}
+
+#wrapper {
+	width: 90%;
+	margin: 0 auto;
+}
+
+#footer {
+	margin-top: 60px;
+	width: 100%;
+	text-align: center;
+	padding: 10px 0 14px;
+	color: var(--fg-mute);
+	font-size: 10px;
+	letter-spacing: 0.05em;
+	border-top: 1px solid var(--border-dim);
+}
+
+#footer p {
+	margin: 2px 0;
+	color: var(--fg-mute);
+}
+
+#footer strong {
+	color: var(--fg-dim);
+}
+
+
+/* ── LOGO ───────────────────────────────────────────────────── */
+
+#logo {
+	width: 220px;
+	height: 50px;
+	background: url('/static/styles/kuro/images/red-kuro.png') no-repeat center center;
+	margin: 5px auto 0;
+	/* Shift logo into green phosphor territory */
+	filter: hue-rotate(95deg) saturate(2.2) brightness(0.85);
+}
+
+#logo a {
+	border: none;
+	width: 220px;
+	height: 50px;
+	display: block;
+}
+
+#logo a:hover {
+	border: none;
+	filter: brightness(1.15);
+}
+
+
+/* ── NAVIGATION MENU ────────────────────────────────────────── */
+
+#menu {
+	position: absolute;
+	top: 85px;
+	width: 90%;
+	padding: 0;
+	text-align: center;
+	background-color: var(--bg-deep);
+	border-top: 1px solid var(--border-base);
+	border-bottom: 1px solid var(--border-base);
+	font-size: 10px;
+	min-width: 850px;
+	letter-spacing: 0.1em;
+}
+
+#menu ul li {
+	position: relative;
+	display: inline;
+	background-color: transparent;
+	padding: 0;
+	margin: 0;
+}
+
+/* Active page indicator */
+#index   #nav_index,
+#torrents #nav_torrents,
+#requests #nav_requests,
+#forums   #nav_forums,
+#top10    #nav_top10,
+#rules    #nav_rules,
+#wiki     #nav_wiki,
+#staff    #nav_staff,
+#collage  #nav_collages,
+#chat     #nav_irc {
+	background-color: var(--bg-mid);
+	border-bottom: 2px solid var(--fg-base);
+}
+
+/* Active page link brightness boost */
+#index    #nav_index    > a,
+#torrents #nav_torrents > a,
+#requests #nav_requests > a,
+#forums   #nav_forums   > a,
+#top10    #nav_top10    > a,
+#rules    #nav_rules    > a,
+#wiki     #nav_wiki     > a,
+#staff    #nav_staff    > a,
+#collage  #nav_collages > a,
+#chat     #nav_irc      > a {
+	color: var(--fg-bright);
+	text-shadow: 0 0 10px var(--fg-base);
+}
+
+#menu ul li a {
+	display: inline-block;
+	padding: 5px 14px;
+	color: var(--fg-dim);
+	text-transform: uppercase;
+	transition: color 0.1s, background 0.1s, text-shadow 0.1s;
+}
+
+/* Terminal-style "/" separator before each nav item */
+#menu ul li a::before {
+	content: "/ ";
+	color: var(--border-mid);
+	font-weight: normal;
+}
+
+#menu ul li a:hover {
+	background-color: var(--bg-mid);
+	text-decoration: none;
+	color: var(--fg-bright);
+	text-shadow: 0 0 12px var(--fg-base);
+}
+
+
+/* ── USERINFO BAR ───────────────────────────────────────────── */
+
+#userinfo {
+	background: var(--bg-deep);
+	color: var(--fg-dim);
+	width: 100%;
+	text-align: center;
+	font-size: 11px;
+	padding: 3px 0;
+	z-index: 10;
+	min-width: 850px;
+	border-bottom: 1px solid var(--border-dim);
+}
+
+#userinfo ul {
+	display: inline;
+	margin: 0 0.6%;
+	padding: 4px;
+}
+
+#userinfo ul li {
+	position: relative;
+	display: inline;
+	margin: 0 0.2em;
+	line-height: 20px;
+	vertical-align: middle;
+	padding: 2px;
+}
+
+#userinfo a {
+	color: var(--fg-dim);
+}
+
+#userinfo a:hover {
+	text-decoration: none;
+	color: var(--cyan-hi);
+	text-shadow: 0 0 8px var(--cyan);
+}
+
+#userinfo b a {
+	font-weight: normal;
+	font-size: 0.9em;
+}
+
+#userinfo span.stat {
+	color: var(--fg-bright);
+	font-weight: bold;
+}
+
+#userinfo_username {
+	position: absolute;
+	top: 10px;
+	left: 5%;
+}
+
+#userinfo_major {
+	position: absolute;
+	top: 10px;
+	right: 5%;
+}
+
+#userinfo_major .brackets:before,
+#userinfo_major .brackets:after {
+	font-weight: bold;
+	color: var(--border-mid);
+}
+
+
+/* ── SEARCH BARS ────────────────────────────────────────────── */
+
+#searchbars {
+	position: absolute;
+	top: 115px;
+	width: 90%;
+	text-align: center;
+	background-color: var(--bg-mid);
+	padding: 4px 0;
+	min-width: 850px;
+	border-bottom: 1px solid var(--border-dim);
+}
+
+#searchbars input {
+	position: relative;
+	padding: 2px 6px;
+	font-size: 11px;
+	background-color: var(--bg-raised);
+	color: var(--fg-bright);
+	border: 1px solid var(--border-base);
+}
+
+#searchbars input:focus {
+	border-color: var(--border-act);
+	box-shadow: 0 0 7px rgba(68,187,68,0.3);
+}
+
+#searchbars ul {
+	margin: 0 auto;
+	display: block;
+}
+
+#searchbars ul li {
+	display: inline;
+	margin: 0 1px;
+	list-style: none;
+	position: relative;
+}
+
+#searchbars ul li ul {
+	display: block;
+	position: absolute;
+	top: 1em;
+	left: 0;
+	z-index: 1000;
+	width: 12em;
+	margin-top: 12px;
+}
+
+#searchbars ul li ul li {
+	margin: 0;
+	padding: 0;
+	display: block;
+	width: 100%;
+	background: var(--bg-raised);
+	border: 1px solid var(--border-base);
+}
+
+#searchbars ul li ul li.highlight {
+	background: var(--bg-active);
+}
+
+#searchbars ul li form {
+	display: inline;
+}
+
+
+/* ── ALERTS ─────────────────────────────────────────────────── */
+
+#alerts {
+	position: relative;
+	margin-top: 60px;
+	margin-bottom: -60px;
+	padding: 10px 0;
+	width: 100%;
+	background-color: var(--bg-mid);
+	min-width: 850px;
+}
+
+#alerts a {
+	color: var(--fg-mid);
+}
+
+.alertbar.blend {
+	background-color: var(--bg-base);
+	border: 1px solid var(--border-dim);
+}
+
+#cat-selector ul {
+	width: 100%;
+}
+
+#cat-selector ul li {
+	display: inline;
+	width: 12em;
+	height: 1em;
+	float: left;
+}
+
+.alertbar {
+	background-color: var(--bg-raised);
+	text-align: center;
+	color: var(--fg-bright);
+	font-weight: bold;
+	font-size: 11px;
+	width: 380px;
+	margin: 0 auto;
+	padding: 8px 12px;
+	border: 1px solid var(--border-hi);
+	letter-spacing: 0.04em;
+	animation: borderPulse 3s ease-in-out infinite;
+}
+
+.alertbar::before {
+	content: "[!] ";
+	color: var(--amber-hi);
+	font-weight: bold;
+}
+
+.alertbar a {
+	color: var(--cyan-mid);
+	text-decoration: underline;
+}
+
+.alertbar a:hover {
+	color: var(--cyan-hi);
+	text-decoration: none;
+}
+
+
+/* ── HIDDEN / VISIBILITY ────────────────────────────────────── */
+
+.hidden {
+	position: absolute;
+	left: -10000px;
+}
+
+input.hidden {
+	position: absolute;
+	display: none;
+}
+
+
+/* ── LAYOUT — ANY PAGE ──────────────────────────────────────── */
+
+.thin {
+	width: 850px;
+	margin: 0 auto;
+}
+
+.widethin {
+	width: 95% !important;
+	margin: 0 auto;
+}
+
+#userinfo_major .brackets:before {
+	font-weight: bold;
+}
+
+#userinfo_major .brackets:after {
+	font-weight: bold;
+}
+
+div.linkbox {
+	text-align: center;
+	padding: 4px;
+	font-size: 11px;
+}
+
+.center {
+	text-align: center;
+}
+
+.right {
+	text-align: right;
+}
+
+.min_padding {
+	padding: 0;
+	margin: 0;
+}
+
+p.min_padding {
+	margin: 2px 0;
+}
+
+.pad {
+	padding: 8px;
+}
+
+.sidebar .pad {
+	padding: 7px;
+	overflow-wrap: break-word;
+}
+
+.vertical_space {
+	margin-bottom: 8px;
+}
+
+
+/* ── BOXES ──────────────────────────────────────────────────── */
+
+.box {
+	font-size: 11px;
+	background-color: var(--bg-mid);
+	border: 1px solid var(--border-base);
+	margin-bottom: 8px;
+}
+
+.box2 {
+	font-size: 11px;
+	background-color: var(--bg-mid);
+	border: 1px solid var(--border-base);
+	margin-bottom: 8px;
+}
+
+.pad h3, .pad h4, .padbox h3, .padbox h4 {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.sidebar {
+	float: right;
+	width: 245px;
+}
+
+/* Box header — inverted phosphor bar */
+.head {
+	padding: 3px 8px;
+	border-bottom: 1px solid var(--border-base);
+	background: var(--bg-deep);
+	color: var(--fg-bright);
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+}
+
+/* Arrow-marker prefix on every box header */
+.head::before {
+	content: "▸ ";
+	color: var(--amber);
+}
+
+.body {
+	padding: 4px 8px 8px;
+	overflow-wrap: break-word;
+	color: var(--fg-base);
+}
+
+.main_column {
+	width: 592px;
+}
+
+.main_column table {
+	margin-bottom: 8px;
+}
+
+
+/* ── TAGS ───────────────────────────────────────────────────── */
+
+.tags {
+	padding: 0 0 0 16px;
+	font-style: normal;
+	font-size: 10px;
+	letter-spacing: 0.03em;
+}
+
+.tags a {
+	color: var(--fg-mute);
+}
+
+.tags a:hover {
+	color: var(--fg-bright);
+	text-decoration: none;
+	text-shadow: var(--glow-faint);
+}
+
+
+/* ── MISC LAYOUT ────────────────────────────────────────────── */
+
+.noborder {
+	border: none;
+}
+
+ul.nobullet {
+	list-style-type: none;
+}
+
+
+/* ── TABLES ─────────────────────────────────────────────────── */
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid var(--border-base);
+	font-size: 11px;
+}
+
+tr {
+	border: 1px solid var(--border-dim);
+	background-color: var(--bg-mid);
+	transition: background-color 0.06s;
+}
+
+tr:hover {
+	background-color: var(--bg-hover);
+}
+
+tr.rowa {
+	background-color: var(--bg-base);
+}
+
+tr.rowa:hover {
+	background-color: var(--bg-hover);
+}
+
+td, th {
+	border: 1px solid var(--border-dim);
+	padding: 3px 6px;
+	text-align: left;
+	color: var(--fg-base);
+}
+
+/* Right-aligned number cells — tabular numerals */
+.number_column {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	color: var(--fg-mid);
+	white-space: nowrap;
+}
+
+/* Column headers */
+.colhead {
+	background: var(--bg-deep);
+	font-weight: bold;
+	color: var(--fg-bright);
+	text-transform: uppercase;
+	font-size: 10px;
+	letter-spacing: 0.1em;
+}
+
+td.colhead, .colhead td, .colhead th {
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.colhead .sign {
+	padding: 0 6px;
+	font-size: 12px;
+	font-weight: bold;
+	vertical-align: middle;
+	color: var(--amber);
+}
+
+.colhead_dark {
+	background: var(--bg-deep);
+	color: var(--fg-dim);
+	vertical-align: middle;
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+}
+
+.colhead_dark a {
+	color: var(--fg-mid);
+}
+
+.colhead_dark a:hover {
+	color: var(--fg-bright);
+}
+
+td.label {
+	font-weight: bold;
+	text-align: right;
+	width: 180px;
+	color: var(--fg-dim);
+}
+
+table.slice {
+	margin-top: -1px;
+}
+
+
+/* ── STATUS MESSAGES ────────────────────────────────────────── */
+
+.error_message {
+	border: 1px solid var(--red-base);
+	padding: 4px;
+	background-color: var(--err-bg);
+	text-align: center;
+	color: var(--red-hi);
+	font-weight: bold;
+	font-size: 11px;
+}
+
+.error_message::before {
+	content: "[ERR] ";
+	color: var(--red-hi);
+	letter-spacing: 0.05em;
+}
+
+.save_message {
+	border: 1px solid var(--amber);
+	padding: 4px;
+	background-color: var(--warn-bg);
+	text-align: center;
+	color: var(--amber-hi);
+	font-weight: bold;
+	font-size: 11px;
+}
+
+.save_message::before {
+	content: "[OK]  ";
+	color: var(--fg-bright);
+}
+
+.elem_error {
+	border: 2px solid var(--red-base);
+	box-shadow: 0 0 8px rgba(187,34,0,0.4);
+}
+
+.hidden {
+	display: none;
+}
+
+
+/* ── HOME PAGE ──────────────────────────────────────────────── */
+
+ul.stats li {
+	padding: 0 0 1px;
+	font-size: 11px;
+}
+
+ul.poll li {
+	padding: 0 0 0 8px;
+	margin: 0;
+	clear: left;
+}
+
+ul.poll li.graph {
+	margin-bottom: 3px;
+	padding-left: 16px;
+}
+
+
+/* ── TORRENT ICONS ──────────────────────────────────────────── */
+
+.cats_applications    { width: 28px; height: 28px; background: url('images/apps.png')      no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.cats_audiobooks      { width: 28px; height: 28px; background: url('images/audiobook.png') no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.cats_comedy          { width: 28px; height: 28px; background: url('images/comedy.png')    no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.cats_comics          { width: 28px; height: 28px; background: url('images/comics.png')    no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.cats_ebooks          { width: 28px; height: 28px; background: url('images/ebook.png')     no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.cats_elearningvideos { width: 28px; height: 28px; background: url('images/elearning.png') no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.cats_music           { width: 28px; height: 28px; background: url('images/music.png')     no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+
+.show_torrents      { width: 28px; height: 28px; background: url('images/show.png') no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.hide_torrents      { width: 28px; height: 28px; background: url('images/hide.png') no-repeat center; filter: hue-rotate(95deg) saturate(2); }
+.show_torrents_link { border: none; width: 28px; height: 28px; display: block; }
+
+
+/* ── TORRENT BROWSE ─────────────────────────────────────────── */
+
+.filter_torrents {
+	width: 750px;
+	margin: auto;
+}
+
+.filter_torrents .submit {
+	text-align: right;
+	padding-top: 4px;
+}
+
+#content form.search_form + .torrent_table {
+	margin-top: 16px;
+}
+
+.cat_list tr td {
+	border: none;
+}
+
+.torrent_table tr {
+	vertical-align: top;
+}
+
+.colhead .sign, .colhead_dark .sign {
+	padding: 0 6px;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 12px;
+	font-weight: bold;
+	color: var(--amber);
+}
+
+.torrent_table tr.group,
+tr.group_torrent,
+tr.torrent {
+	background-color: var(--bg-mid);
+}
+
+.torrent_table div.tags {
+	font-weight: normal;
+}
+
+.torrent_table tr .center {
+	vertical-align: middle;
+	text-align: center;
+}
+
+.group_torrent span {
+	float: right;
+}
+
+.torrent span {
+	font-weight: normal;
+	float: right;
+}
+
+.nobr {
+	white-space: nowrap;
+}
+
+/* Edition separator rows */
+.edition_info {
+	background-color: var(--bg-deep) !important;
+	color: var(--amber-mid) !important;
+	font-size: 10px !important;
+	letter-spacing: 0.07em;
+	padding: 3px 8px !important;
+	border-top: 1px solid var(--border-base);
+	border-bottom: 1px solid var(--border-base);
+}
+
+.edition_info::before {
+	content: "▶ ";
+	color: var(--amber);
+}
+
+/* Expanded torrent detail rows */
+tr.torrentdetails {
+	background: var(--bg-deep) !important;
+}
+
+tr.torrentdetails td {
+	border-top: none;
+	padding: 4px 8px;
+}
+
+/* Inline DL/RP/PL action buttons */
+.torrent_action_buttons a {
+	display: inline-block;
+	padding: 0 3px;
+	font-size: 10px;
+	font-weight: bold;
+	letter-spacing: 0.05em;
+	border: 1px solid var(--border-dim);
+	background: var(--bg-deep);
+	transition: all 0.08s;
+	margin: 0 1px;
+}
+
+.button_dl { color: var(--fg-mid)  !important; border-color: var(--border-base) !important; }
+.button_rp { color: var(--red-dim) !important; }
+.button_pl { color: var(--fg-mute) !important; }
+
+.button_dl:hover { background: var(--border-base) !important; color: var(--bg-void) !important; text-shadow: none !important; box-shadow: 0 0 6px var(--fg-dim); }
+.button_rp:hover { background: var(--red-dim)     !important; color: var(--fg-max)  !important; text-shadow: none !important; }
+.button_pl:hover { background: var(--bg-raised)   !important; color: var(--fg-bright) !important; text-shadow: none !important; }
+
+/* File listing inside expanded torrent */
+.filelist_table {
+	font-size: 10px;
+	background: var(--bg-deep);
+}
+
+.filelist_title {
+	color: var(--fg-mid);
+	font-weight: bold;
+	letter-spacing: 0.06em;
+}
+
+.filelist_path {
+	color: var(--fg-dim);
+	font-size: 10px;
+}
+
+.no_overflow {
+	overflow: hidden;
+}
+
+
+/* ── FORUMS ─────────────────────────────────────────────────── */
+
+.last_read { width: 15px; height: 15px; background: url(images/go_last_read.png) no-repeat center; margin-left: 5px; filter: hue-rotate(95deg); }
+.last_read a       { border: none; width: 100%; height: 100%; display: block; }
+.last_read a:hover { border: none; }
+
+.unread_locked_sticky, .read_locked_sticky { background: url(images/locked_sticky.png) no-repeat center; filter: hue-rotate(95deg); }
+.read_sticky,  .unread_sticky              { background: url(images/sticky.png)         no-repeat center; filter: hue-rotate(95deg); }
+.unread_locked                             { background: url(images/locked_unread.png)  no-repeat center; filter: hue-rotate(95deg); }
+.read_locked                               { background: url(images/locked_read.png)    no-repeat center; filter: hue-rotate(95deg); }
+.unread                                    { background: url(images/unread.png)          no-repeat center; filter: hue-rotate(95deg); }
+.read                                      { background: url(images/read.png)            no-repeat center; filter: hue-rotate(95deg); }
+
+strong.quoteheader {
+	color: var(--fg-dim);
+}
+
+table.forum_post {
+	margin: 8px 0;
+}
+
+table.forum_post td {
+	border: 1px solid var(--border-dim);
+}
+
+table.forum_unread {
+	border: 1px solid var(--border-hi);
+	box-shadow: 0 0 12px rgba(45,140,45,0.2);
+}
+
+td.avatar {
+	width: 150px;
+	padding: 0;
+}
+
+table.forum_post td.body {
+	max-width: 675px;
+}
+
+tbody {
+	max-width: 690px;
+}
+
+
+/* ── INBOX ──────────────────────────────────────────────────── */
+
+tr.unreadpm {
+	background-color: #130505 !important;
+	border-left: 2px solid var(--red-base);
+}
+
+
+/* ── PERMISSIONS ────────────────────────────────────────────── */
+
+.permission_head {
+	width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.permissions {
+	width: 930px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.permission_container {
+	float: left;
+	width: 300px;
+	padding: 5px;
+}
+
+.permission_container input {
+	margin: 0 3px 5px 0;
+	vertical-align: top;
+}
+
+.submit_container {
+	clear: both;
+	text-align: right;
+}
+
+
+/* ── INVITE TREE ────────────────────────────────────────────── */
+
+ul .invitetree {
+	margin: 0 0 0 25px;
+}
+
+.invitetree li {
+	list-style: none;
+	margin: 8px 2px;
+}
+
+
+/* ── USER OPTIONS ───────────────────────────────────────────── */
+
+.user_options .options_list li {
+	margin: 0;
+}
+
+
+/* ── POLL BARS ──────────────────────────────────────────────── */
+
+.left_poll   { width: 2px; height: 9px; background: url('images/bar_left.gif')  no-repeat center; float: left; margin: 0; padding: 0; }
+.center_poll {            height: 9px; background: url('images/bar.gif')        repeat-x;         float: left; margin: 0; padding: 0; }
+.right_poll  { width: 2px; height: 9px; background: url('images/bar_right.gif') no-repeat center; float: left; margin: 0; padding: 0; }
+
+
+/* ── LIGHTBOX / CURTAIN ─────────────────────────────────────── */
+
+.curtain {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background-color: rgba(0,0,0,0.92);
+	z-index: 1001;
+	opacity: 0.92;
+}
+
+.lightbox {
+	position: fixed;
+	text-align: center;
+	top: 5%; left: 5%;
+	width: 90%; height: 90%;
+	padding: 0;
+	z-index: 1002;
+	overflow: auto;
+	border: 1px solid var(--border-hi);
+	box-shadow: 0 0 40px rgba(45,140,45,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.lightbox img {
+	max-width: 100%;
+	max-height: 100%;
+	background-color: transparent;
+	z-index: -1;
+}
+
+
+/* ── MISC ───────────────────────────────────────────────────── */
+
+table#torrent_table.torrent_table {
+	margin: auto;
+}
+
+form tr {
+	background-color: var(--bg-mid);
+}
+
+.center {
+	text-align: center;
+}
+
+.spellcheck {
+	margin: 20px 0;
+	font-size: 1.2em;
+	font-weight: bold;
+	color: var(--amber-hi);
+	letter-spacing: 0.06em;
+}
+
+tr.torrent .bookmark > a:before { color: var(--fg-mute); }
+tr.torrent .bookmark > a:after  { color: var(--fg-mute); }
+
+.linkbox .brackets:before,
+.linkbox .brackets:after,
+.top10_quantity_links .brackets:before,
+.top10_quantity_links .brackets:after {
+	color: var(--border-hi);
+}
+
+.field_div {
+	margin-bottom: 8px;
+}
+
+.edit_changelog textarea {
+	width: 600px;
+}
+
+.autocomplete-suggestions {
+	background: var(--bg-raised);
+	border: 1px solid var(--border-hi);
+	color: var(--fg-bright);
+	font-family: var(--font);
+	font-size: 11px;
+	box-shadow: 0 4px 16px rgba(0,0,0,0.8);
+}
+
+.autocomplete-suggestion.selected {
+	background: var(--bg-active);
+	color: var(--fg-bright);
+}
+
+.post_id {
+	font-weight: normal;
+	color: var(--fg-mute);
+	font-size: 10px;
+}
+
+.vote_tag_up, .vote_artist_up, .vote_album_up,
+.small_upvote, .small_upvoted {
+	color: var(--fg-bright);
+}
+
+.vote_tag_down, .vote_artist_down, .vote_album_down,
+.small_downvote, .small_downvoted {
+	color: var(--red-base);
+}
+
+/* Calendar fix */
+div.sidebar #event_div {
+	margin-left: -232px;
+}
+
+ol {
+	margin-left: 1em;
+}
+
+#forum_search_cat_list,
+#forum_search_cat_list tr {
+	border: none;
+}
+
+
+/* ── CHARTS / SVG ───────────────────────────────────────────── */
+
+.chart-text  { fill: var(--fg-bright); }
+.labels      { fill: var(--fg-dim); }
+.label-title { fill: var(--fg-mid); }
+.bar-value   { fill: var(--fg-max); }
+
+.vertical-graph-line:hover {
+	stroke: rgba(63,170,63,0.5);
+}
+
+
+/* ── GRAPH PALETTE — 24 series, ANSI terminal aesthetic ─────── */
+/* Built from classic 8+8 ANSI color theory, remapped for dark screens */
+
+.graphs .shape-1  { background-color: #cc3322; }
+.graphs .shape-2  { background-color: #3daa3d; }
+.graphs .shape-3  { background-color: #ccbb22; }
+.graphs .shape-4  { background-color: #3388cc; }
+.graphs .shape-5  { background-color: #aa33cc; }
+.graphs .shape-6  { background-color: #22bbaa; }
+.graphs .shape-7  { background-color: #cc8822; }
+.graphs .shape-8  { background-color: #dd6655; }
+.graphs .shape-9  { background-color: #55cc55; }
+.graphs .shape-10 { background-color: #dddd44; }
+.graphs .shape-11 { background-color: #5588ee; }
+.graphs .shape-12 { background-color: #cc55cc; }
+.graphs .shape-13 { background-color: #55cccc; }
+.graphs .shape-14 { background-color: #ddaa33; }
+.graphs .shape-15 { background-color: #aa2211; }
+.graphs .shape-16 { background-color: #228833; }
+.graphs .shape-17 { background-color: #888800; }
+.graphs .shape-18 { background-color: #1155aa; }
+.graphs .shape-19 { background-color: #882288; }
+.graphs .shape-20 { background-color: #118888; }
+.graphs .shape-21 { background-color: #cc6600; }
+.graphs .shape-22 { background-color: #44bbaa; }
+.graphs .shape-23 { background-color: #9944bb; }
+.graphs .shape-24 { background-color: #aaaa33; }
+
+.graphs .chart-color-1  { stroke: #ee4433; transition: all .2s linear; }
+.graphs .chart-color-2  { stroke: #44cc44; transition: all .2s linear; }
+.graphs .chart-color-3  { stroke: #dddd33; transition: all .2s linear; }
+.graphs .chart-color-4  { stroke: #4499dd; transition: all .2s linear; }
+.graphs .chart-color-5  { stroke: #bb44dd; transition: all .2s linear; }
+.graphs .chart-color-6  { stroke: #44ddcc; transition: all .2s linear; }
+.graphs .chart-color-7  { stroke: #dd9933; transition: all .2s linear; }
+.graphs .chart-color-8  { stroke: #ff7766; transition: all .2s linear; }
+.graphs .chart-color-9  { stroke: #77dd77; transition: all .2s linear; }
+.graphs .chart-color-10 { stroke: #ffff66; transition: all .2s linear; }
+.graphs .chart-color-11 { stroke: #77aaff; transition: all .2s linear; }
+.graphs .chart-color-12 { stroke: #dd77dd; transition: all .2s linear; }
+.graphs .chart-color-13 { stroke: #77dddd; transition: all .2s linear; }
+.graphs .chart-color-14 { stroke: #ffbb44; transition: all .2s linear; }
+.graphs .chart-color-15 { stroke: #cc3322; transition: all .2s linear; }
+.graphs .chart-color-16 { stroke: #33aa44; transition: all .2s linear; }
+.graphs .chart-color-17 { stroke: #aaaa22; transition: all .2s linear; }
+.graphs .chart-color-18 { stroke: #2266bb; transition: all .2s linear; }
+.graphs .chart-color-19 { stroke: #aa33aa; transition: all .2s linear; }
+.graphs .chart-color-20 { stroke: #22aaaa; transition: all .2s linear; }
+.graphs .chart-color-21 { stroke: #dd7722; transition: all .2s linear; }
+.graphs .chart-color-22 { stroke: #55ccaa; transition: all .2s linear; }
+.graphs .chart-color-23 { stroke: #aa55cc; transition: all .2s linear; }
+.graphs .chart-color-24 { stroke: #ccaa44; transition: all .2s linear; }
+
+.graphs .chart-color-1:hover  { stroke: #ff6655; }
+.graphs .chart-color-2:hover  { stroke: #66ee66; }
+.graphs .chart-color-3:hover  { stroke: #ffff55; }
+.graphs .chart-color-4:hover  { stroke: #66bbff; }
+.graphs .chart-color-5:hover  { stroke: #dd66ff; }
+.graphs .chart-color-6:hover  { stroke: #66ffee; }
+.graphs .chart-color-7:hover  { stroke: #ffbb55; }
+.graphs .chart-color-8:hover  { stroke: #ff9988; }
+.graphs .chart-color-9:hover  { stroke: #99ff99; }
+.graphs .chart-color-10:hover { stroke: #ffff99; }
+.graphs .chart-color-11:hover { stroke: #99ccff; }
+.graphs .chart-color-12:hover { stroke: #ff99ff; }
+.graphs .chart-color-13:hover { stroke: #99ffff; }
+.graphs .chart-color-14:hover { stroke: #ffcc77; }
+.graphs .chart-color-15:hover { stroke: #ff5544; }
+.graphs .chart-color-16:hover { stroke: #55cc66; }
+.graphs .chart-color-17:hover { stroke: #cccc44; }
+.graphs .chart-color-18:hover { stroke: #4488dd; }
+.graphs .chart-color-19:hover { stroke: #cc55cc; }
+.graphs .chart-color-20:hover { stroke: #44cccc; }
+.graphs .chart-color-21:hover { stroke: #ff9944; }
+.graphs .chart-color-22:hover { stroke: #77eebb; }
+.graphs .chart-color-23:hover { stroke: #cc77ee; }
+.graphs .chart-color-24:hover { stroke: #eebb55; }
+
+.graphs .bar-color-1  { fill: #cc3322; transition: all .2s linear; }
+.graphs .bar-color-2  { fill: #33aa33; transition: all .2s linear; }
+.graphs .bar-color-3  { fill: #bbbb22; transition: all .2s linear; }
+.graphs .bar-color-4  { fill: #3388cc; transition: all .2s linear; }
+.graphs .bar-color-5  { fill: #9922bb; transition: all .2s linear; }
+.graphs .bar-color-6  { fill: #22bbaa; transition: all .2s linear; }
+.graphs .bar-color-7  { fill: #bb8822; transition: all .2s linear; }
+.graphs .bar-color-8  { fill: #dd5544; transition: all .2s linear; }
+.graphs .bar-color-9  { fill: #55bb55; transition: all .2s linear; }
+.graphs .bar-color-10 { fill: #cccc44; transition: all .2s linear; }
+.graphs .bar-color-11 { fill: #5577cc; transition: all .2s linear; }
+.graphs .bar-color-12 { fill: #bb55bb; transition: all .2s linear; }
+.graphs .bar-color-13 { fill: #55bbbb; transition: all .2s linear; }
+.graphs .bar-color-14 { fill: #cc9922; transition: all .2s linear; }
+.graphs .bar-color-15 { fill: #991100; transition: all .2s linear; }
+.graphs .bar-color-16 { fill: #227722; transition: all .2s linear; }
+.graphs .bar-color-17 { fill: #777700; transition: all .2s linear; }
+.graphs .bar-color-18 { fill: #114499; transition: all .2s linear; }
+.graphs .bar-color-19 { fill: #771177; transition: all .2s linear; }
+.graphs .bar-color-20 { fill: #117777; transition: all .2s linear; }
+.graphs .bar-color-21 { fill: #aa5500; transition: all .2s linear; }
+.graphs .bar-color-22 { fill: #33aa77; transition: all .2s linear; }
+.graphs .bar-color-23 { fill: #882299; transition: all .2s linear; }
+.graphs .bar-color-24 { fill: #998822; transition: all .2s linear; }
+
+.graphs .bar-color-1:hover  { fill: #ee5544; }
+.graphs .bar-color-2:hover  { fill: #55cc55; }
+.graphs .bar-color-3:hover  { fill: #dddd44; }
+.graphs .bar-color-4:hover  { fill: #55aaee; }
+.graphs .bar-color-5:hover  { fill: #bb44dd; }
+.graphs .bar-color-6:hover  { fill: #44ddcc; }
+.graphs .bar-color-7:hover  { fill: #ddaa33; }
+.graphs .bar-color-8:hover  { fill: #ff7766; }
+.graphs .bar-color-9:hover  { fill: #77dd77; }
+.graphs .bar-color-10:hover { fill: #eeee66; }
+.graphs .bar-color-11:hover { fill: #7799ee; }
+.graphs .bar-color-12:hover { fill: #dd77dd; }
+.graphs .bar-color-13:hover { fill: #77dddd; }
+.graphs .bar-color-14:hover { fill: #eebb44; }
+.graphs .bar-color-15:hover { fill: #cc3322; }
+.graphs .bar-color-16:hover { fill: #44aa44; }
+.graphs .bar-color-17:hover { fill: #aaaa22; }
+.graphs .bar-color-18:hover { fill: #3366bb; }
+.graphs .bar-color-19:hover { fill: #aa33aa; }
+.graphs .bar-color-20:hover { fill: #33aaaa; }
+.graphs .bar-color-21:hover { fill: #cc7722; }
+.graphs .bar-color-22:hover { fill: #55ccaa; }
+.graphs .bar-color-23:hover { fill: #aa44bb; }
+.graphs .bar-color-24:hover { fill: #bbaa44; }
+
+
+/* ── FORM VALIDATION ────────────────────────────────────────── */
+
+input[type="email"]:invalid,
+input[type="password"]:invalid,
+input[type="search"]:invalid,
+input[type="text"]:invalid,
+input[type="url"]:invalid,
+input[type="checkbox"]:invalid,
+select:invalid,
+textarea:invalid {
+	outline: 2px solid var(--red-base);
+	box-shadow: 0 0 6px rgba(187,34,0,0.5);
+}
+
+input[type="checkbox"]:invalid + label {
+	color: var(--red-hi);
+	font-weight: bold;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   EXTRA DIVS — CRT ATMOSPHERE SYSTEM
+   Each #extraN div exists in the DOM as <div><span></span></div>
+   and is repurposed for layered CRT visual effects.
+   All use pointer-events: none so they never block interaction.
+   ═══════════════════════════════════════════════════════════ */
+
+
+/* ── extra1: HORIZONTAL SCANLINES ───────────────────────────── */
+/* Simulates the discrete raster line structure of a CRT phosphor screen */
+
+#extra1 {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	pointer-events: none;
+	z-index: 9900;
+	background: repeating-linear-gradient(
+		0deg,
+		transparent,
+		transparent 2px,
+		rgba(0, 0, 0, 0.13) 2px,
+		rgba(0, 0, 0, 0.13) 4px
+	);
+}
+
+
+/* ── extra2: VIGNETTE ───────────────────────────────────────── */
+/* Dark radial gradient from edges inward — CRT glass lensing effect.
+   The center brightens (phosphor at rest), edges fall into shadow. */
+
+#extra2 {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	pointer-events: none;
+	z-index: 9901;
+	background: radial-gradient(
+		ellipse at 50% 42%,
+		transparent 45%,
+		rgba(0, 0, 0, 0.5) 100%
+	);
+}
+
+
+/* ── extra3: PHOSPHOR FLICKER ───────────────────────────────── */
+/* Very subtle random-feeling opacity drops that simulate
+   the real phosphor persistence variations of old screens.
+   The timing (7.3s prime) avoids obvious visual periodicity. */
+
+#extra3 {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	pointer-events: none;
+	z-index: 9899;
+	background: rgba(0, 8, 0, 0.03);
+	animation: phosphorFlicker 7.3s steps(1) infinite;
+}
+
+
+/* ── extra4: BOOT FADE — the CRT warm-up sequence ───────────── */
+/* On page load, the entire screen appears as a black void.
+   A startup message glows into view, then fades as content appears.
+   Mimics the ~1.5s warm-up delay of a cold phosphor screen. */
+
+#extra4 {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: var(--bg-void);
+	z-index: 99990;
+	pointer-events: none;
+	animation: crtBoot 1.7s ease-in forwards;
+}
+
+#extra4 span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	white-space: nowrap;
+}
+
+/* The boot message text — injected purely via CSS content */
+#extra4 span::before {
+	content: "ESTABLISHING CONNECTION";
+	display: block;
+	color: var(--fg-bright);
+	font-family: var(--font);
+	font-size: 13px;
+	letter-spacing: 0.3em;
+	text-shadow: 0 0 14px var(--fg-mid), 0 0 28px var(--fg-dim);
+	text-align: center;
+}
+
+#extra4 span::after {
+	content: "SYSTEM READY";
+	display: block;
+	color: var(--fg-dim);
+	font-family: var(--font);
+	font-size: 10px;
+	letter-spacing: 0.2em;
+	text-align: center;
+	margin-top: 8px;
+}
+
+
+/* ── extra5: STATUS CURSOR — bottom-right terminal indicator ─── */
+/* A persistent "SYS:OK █" in the corner, like a hardware status LED
+   expressed in character-cell form. The block cursor blinks steadily. */
+
+#extra5 {
+	position: fixed;
+	bottom: 8px;
+	right: 12px;
+	z-index: 99991;
+	pointer-events: none;
+	font-family: var(--font);
+	font-size: 10px;
+	color: var(--fg-ghost);
+	letter-spacing: 0.05em;
+	opacity: 0;
+	animation: fadeUp 0.3s ease-out 1.9s forwards;
+}
+
+#extra5::before {
+	content: "SYS:OK ";
+	color: var(--fg-ghost);
+}
+
+#extra5 span::after {
+	content: "█";
+	color: var(--fg-base);
+	animation: blink 1.05s step-end infinite;
+	text-shadow: 0 0 8px var(--fg-mid);
+}
+
+
+/* ── extra6: CORNER BRACKETS — viewport frame ───────────────── */
+/* Ultra-faint box-drawing corners placed at the four viewport edges.
+   They don't frame content — they frame the *screen itself*, like the
+   bezels and optical distortion markers on a real CRT monitor.
+   The span's pseudo-elements cover the two remaining corners. */
+
+#extra6 {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	pointer-events: none;
+	z-index: 9902;
+	opacity: 0;
+	animation: fadeUp 0.4s ease-out 2.0s forwards;
+}
+
+#extra6::before {
+	content: "┌";
+	position: fixed;
+	top: 5px; left: 8px;
+	color: var(--fg-ghost);
+	font-family: var(--font);
+	font-size: 18px;
+	line-height: 1;
+}
+
+#extra6::after {
+	content: "┘";
+	position: fixed;
+	bottom: 5px; right: 8px;
+	color: var(--fg-ghost);
+	font-family: var(--font);
+	font-size: 18px;
+	line-height: 1;
+}
+
+#extra6 span::before {
+	content: "┐";
+	position: fixed;
+	top: 5px; right: 8px;
+	color: var(--fg-ghost);
+	font-family: var(--font);
+	font-size: 18px;
+	line-height: 1;
+}
+
+#extra6 span::after {
+	content: "└";
+	position: fixed;
+	bottom: 5px; left: 8px;
+	color: var(--fg-ghost);
+	font-family: var(--font);
+	font-size: 18px;
+	line-height: 1;
+}
