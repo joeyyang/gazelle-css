@@ -24,11 +24,11 @@
 
 	/* Phosphor green — P1 emission spectrum */
 	--fg-ghost:   #142814;
-	--fg-mute:    #4eb64e;
-	--fg-dim:     #52ba52;
-	--fg-base:    #58c058;
-	--fg-mid:     #55c455;
-	--fg-bright:  #7ddf7d;
+	--fg-mute:    #66cc66;
+	--fg-dim:     #74d474;
+	--fg-base:    #82dc82;
+	--fg-mid:     #90e690;
+	--fg-bright:  #a0f0a0;
 	--fg-max:     #b0ffb0;
 
 	/* Amber — secondary terminal accent (P3 phosphor family) */
