@@ -24,16 +24,16 @@
 
 	/* Phosphor green — P1 emission spectrum */
 	--fg-ghost:   #142814;
-	--fg-mute:    #204420;
-	--fg-dim:     #2d6b2d;
-	--fg-base:    #3faa3f;
+	--fg-mute:    #4eb64e;
+	--fg-dim:     #52ba52;
+	--fg-base:    #58c058;
 	--fg-mid:     #55c455;
 	--fg-bright:  #7ddf7d;
 	--fg-max:     #b0ffb0;
 
 	/* Amber — secondary terminal accent (P3 phosphor family) */
 	--amber-dim:  #6b4200;
-	--amber:      #c07a00;
+	--amber:      #dd9900;
 	--amber-mid:  #e09a10;
 	--amber-hi:   #f5c030;
 	--amber-max:  #ffe066;
@@ -47,8 +47,8 @@
 
 	/* Status */
 	--red-dim:    #550e00;
-	--red-base:   #bb2200;
-	--red-hi:     #ff4422;
+	--red-base:   #ff7766;
+	--red-hi:     #ff8877;
 	--err-bg:     #1a0500;
 	--warn-bg:    #1a1400;
 
@@ -312,7 +312,7 @@ input[type="button"] {
 
 input[type="submit"]:hover,
 input[type="button"]:hover {
-	background: var(--border-mid);
+	background: var(--fg-mid);
 	color: var(--bg-deep);
 	box-shadow: 0 0 10px var(--fg-dim);
 	border-color: var(--border-act);
@@ -341,15 +341,15 @@ blockquote {
 /* Bad → amber → green: terminal warning palette */
 
 .r00 { color: var(--red-hi);   text-shadow: 0 0 7px var(--red-base); }
-.r01 { color: #ee4411; }
-.r02 { color: #e85511; }
-.r03 { color: #e06611; }
-.r04 { color: #d07700; }
+.r01 { color: #ff8855; }
+.r02 { color: #ff9944; }
+.r03 { color: #ffaa33; }
+.r04 { color: #ffbb22; }
 .r05 { color: var(--amber-hi); }
 .r06 { color: var(--amber-mid); }
-.r07 { color: #c88a00; }
-.r08 { color: #b07a00; }
-.r09 { color: #997000; }
+.r07 { color: #ddaa22; }
+.r08 { color: #99cc33; }
+.r09 { color: #66bb44; }
 .r10 { color: var(--fg-mid); }
 .r20 { color: var(--fg-bright); }
 .r50 { color: var(--fg-bright); text-shadow: 0 0 5px var(--fg-base); }
@@ -1154,10 +1154,10 @@ tr.torrentdetails td {
 }
 
 .button_dl { color: var(--fg-mid)  !important; border-color: var(--border-base) !important; }
-.button_rp { color: var(--red-dim) !important; }
+.button_rp { color: var(--red-hi) !important; }
 .button_pl { color: var(--fg-mute) !important; }
 
-.button_dl:hover { background: var(--border-base) !important; color: var(--bg-void) !important; text-shadow: none !important; box-shadow: 0 0 6px var(--fg-dim); }
+.button_dl:hover { background: var(--fg-mid) !important; color: var(--bg-deep) !important; text-shadow: none !important; box-shadow: 0 0 6px var(--fg-dim); }
 .button_rp:hover { background: var(--red-dim)     !important; color: var(--fg-max)  !important; text-shadow: none !important; }
 .button_pl:hover { background: var(--bg-raised)   !important; color: var(--fg-bright) !important; text-shadow: none !important; }
 
