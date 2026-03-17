@@ -83,10 +83,14 @@
 }
 
 @keyframes crtBoot {
-	0%   { opacity: 1; }
-	65%  { opacity: 1; }
-	88%  { opacity: 0.9; }
-	95%  { opacity: 0.4; }
+	/* Degauss ripple — color fringing + blur simulates the magnetic pulse */
+	0%   { opacity: 1; filter: saturate(1)   hue-rotate(0deg);   }
+	12%  { opacity: 1; filter: saturate(7)   hue-rotate(42deg)   blur(3px); }
+	24%  {             filter: saturate(5)   hue-rotate(-26deg)  blur(2px); }
+	36%  {             filter: saturate(3)   hue-rotate(14deg)   blur(1px); }
+	50%  { opacity: 0.88; filter: saturate(1.5) hue-rotate(0deg) blur(0px); }
+	70%  { opacity: 0.4;  filter: none; }
+	88%  { opacity: 0.1;  }
 	100% { opacity: 0; }
 }
 
@@ -131,6 +135,97 @@
 	to   { transform: translateX(-100%); }
 }
 
+@keyframes logoGlitch {
+	/*
+	 * The animation uses steps(1) timing on the caller, meaning every keyframe
+	 * snaps instantly with no interpolation — hard cuts, not smooth transitions.
+	 * This is intentional: real signal corruption doesn't ease.
+	 *
+	 * The full cycle is 7.3s. Most of it is the "quiet" baseline (0%–85%).
+	 * The glitch burst happens between 87%–93%, which at 7.3s = ~0.44 seconds
+	 * of chaos. Three rapid-fire frames (~0.15s each) simulate a magnetic
+	 * interference spike corrupting the video signal.
+	 *
+	 * Two techniques combine to sell the effect:
+	 *
+	 *   clip-path: inset(top right bottom left)
+	 *     Crops the element to a horizontal band. By clipping different
+	 *     slices in each frame, it looks like the text is being torn apart
+	 *     into separate strips — the classic "video glitch" horizontal tear.
+	 *     e.g. inset(14% 0 54% 0) shows only the strip from 14% to 46% down.
+	 *
+	 *   transform: translate(X, -50%)
+	 *     The Y stays at -50% (keeps text centered vertically), but X shifts
+	 *     left/right of the -50% horizontal center. Each frame shifts it a
+	 *     few percent in alternating directions, so the sliced strips skew
+	 *     sideways — like a tape head misread or horizontal sync loss.
+	 *
+	 *   text-shadow: Xpx 0 color
+	 *     During the glitch, the R/G ghost shadows spread wider (+5px/-4px
+	 *     vs the calm +2px/-2px) and get more opaque (0.65 vs 0.38), making
+	 *     the chromatic aberration fringes visibly explode outward as if the
+	 *     electron beam is being deflected by the interference field.
+	 */
+
+	/* ── CALM STATE (0%–85% and 100%) ──────────────────────────
+	   Text is centered and stable. Subtle constant chromatic aberration:
+	   a pink ghost 2px right + a cyan ghost 2px left, plus the phosphor glow.
+	   This is the "baseline worn CRT" look — slightly off but not broken. */
+	0%, 85%, 100% {
+		clip-path: none;
+		transform: translate(-50%, -50%);
+		text-shadow:
+			2px 0 rgba(255, 50, 100, 0.38),    /* pink ghost, offset right */
+			-2px 0 rgba(0, 200, 255, 0.38),    /* cyan ghost, offset left  */
+			0 0 12px var(--fg-mid),             /* tight phosphor core glow */
+			0 0 26px var(--fg-dim);             /* loose outer glow halo    */
+	}
+
+	/* ── GLITCH FRAME 1 (87%) — TOP SLICE, LEFT SKEW ───────────
+	   Only the top ~32% of the text is visible (inset clips away the bottom
+	   54% and reveals 14%→46%). The whole strip lurches 4% left of center.
+	   Ghost shadows widen and intensify — the beam is being thrown sideways. */
+	87% {
+		clip-path: inset(14% 0 54% 0);         /* show top strip only      */
+		transform: translate(-54%, -50%);       /* skew left from center    */
+		text-shadow: 5px 0 rgba(255, 50, 100, 0.65), -3px 0 rgba(0, 200, 255, 0.65), 0 0 8px var(--fg-bright);
+	}
+
+	/* ── GLITCH FRAME 2 (89%) — BOTTOM SLICE, RIGHT SKEW ───────
+	   Opposite slice: only the bottom ~35% is visible (50% top clipped,
+	   15% bottom clipped = shows 50%→85%). Skews 4% right instead of left.
+	   Ghost colors flip sides — red is now left, cyan is now right — as if
+	   the chromatic channels crossed over during the interference spike. */
+	89% {
+		clip-path: inset(50% 0 15% 0);         /* show bottom strip only   */
+		transform: translate(-46%, -50%);       /* skew right from center   */
+		text-shadow: -4px 0 rgba(255, 50, 100, 0.65), 5px 0 rgba(0, 200, 255, 0.65), 0 0 8px var(--fg-base);
+	}
+
+	/* ── GLITCH FRAME 3 (91%) — MIDDLE SLICE, SMALL DRIFT ──────
+	   A thin middle band (~32% height, from 32%→64%). Both X and Y drift
+	   slightly — the 1% vertical shift adds a subliminal "dropped field" feel.
+	   No custom text-shadow here so it inherits the previous frame's spread. */
+	91% {
+		clip-path: inset(32% 0 36% 0);         /* show middle strip only   */
+		transform: translate(-52%, -51%);       /* slight drift in both axes */
+	}
+
+	/* ── RECOVERY (93%) — SNAP BACK ────────────────────────────
+	   Clip and position snap back to clean state. Because timing is steps(1),
+	   this is instantaneous — the glitch just stops, like the signal recovered.
+	   The 7% gap back to 100% gives breathing room before the next cycle. */
+	93% {
+		clip-path: none;
+		transform: translate(-50%, -50%);
+	}
+}
+
+@keyframes crtBeamSweep {
+	from { background-position: 0 0, 0 0; }
+	to   { background-position: 0 -120px, 0 0; }
+}
+
 
 /* ── RESET ──────────────────────────────────────────────────── */
 
@@ -155,14 +250,23 @@ body {
 	color: var(--fg-base);
 	min-width: 850px;
 	background-color: var(--bg-base);
-	/* Subtle phosphor-green radial warmth from the center — like a CRT's brighter center */
-	background-image: radial-gradient(
-		ellipse at 50% 35%,
-		rgba(30, 80, 30, 0.18) 0%,
-		rgba(10, 30, 10, 0.08) 45%,
-		transparent 70%
-	);
-	animation: phosphorFlicker 11.7s steps(1) infinite;
+	/* Layer 1: electron beam sweep — faint bright stripe scrolling top→bottom
+	   Layer 2: phosphor-green radial warmth from the center — like a CRT's brighter center */
+	background-image:
+		repeating-linear-gradient(
+			0deg,
+			transparent 0px,
+			transparent 59px,
+			rgba(24, 70, 24, 0.022) 60px,
+			transparent 61px
+		),
+		radial-gradient(
+			ellipse at 50% 35%,
+			rgba(30, 80, 30, 0.18) 0%,
+			rgba(10, 30, 10, 0.08) 45%,
+			transparent 70%
+		);
+	animation: phosphorFlicker 11.7s steps(1) infinite, crtBeamSweep 9s linear infinite;
 }
 
 /* Text selection — inverted phosphor */
@@ -433,6 +537,7 @@ ul.thin li {
 	margin: 5px auto 0;
 	/* Shift logo into green phosphor territory */
 	filter: hue-rotate(95deg) saturate(2.2) brightness(0.85);
+	position: relative;
 }
 
 #logo a {
@@ -445,6 +550,28 @@ ul.thin li {
 #logo a:hover {
 	border: none;
 	filter: brightness(1.15);
+}
+
+/* Glitchy phosphor text layered over the logo image */
+#logo::after {
+	content: "GAZELLE";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	color: var(--fg-max);
+	font-family: var(--font);
+	font-size: 19px;
+	font-weight: bold;
+	letter-spacing: 0.42em;
+	/* Chromatic aberration ghost trails — RGB fringing like a worn CRT */
+	text-shadow:
+		2px 0 rgba(255, 50, 100, 0.38),
+		-2px 0 rgba(0, 200, 255, 0.38),
+		0 0 12px var(--fg-mid),
+		0 0 26px var(--fg-dim);
+	animation: logoGlitch 7.3s steps(1) infinite;
 }
 
 
@@ -1590,8 +1717,8 @@ input[type="checkbox"]:invalid + label {
 		0deg,
 		transparent,
 		transparent 2px,
-		rgba(0, 0, 0, 0.13) 2px,
-		rgba(0, 0, 0, 0.13) 4px
+		rgba(0, 0, 0, 0.07) 2px,
+		rgba(0, 0, 0, 0.07) 4px
 	);
 }
 
@@ -1639,10 +1766,11 @@ input[type="checkbox"]:invalid + label {
 	position: fixed;
 	top: 0; left: 0;
 	width: 100%; height: 100%;
-	background: var(--bg-void);
+	/* Semi-transparent so content bleeds through during the degauss ripple */
+	background: rgba(1, 6, 1, 0.88);
 	z-index: 99990;
 	pointer-events: none;
-	animation: crtBoot 1.7s ease-in forwards;
+	animation: crtBoot 1.0s ease-out forwards;
 }
 
 #extra4 span {
