@@ -221,9 +221,37 @@
 	}
 }
 
-@keyframes crtBeamSweep {
-	from { background-position: 0 0, 0 0; }
-	to   { background-position: 0 -120px, 0 0; }
+@keyframes crtBackground {
+	/*
+	 * Drives TWO body background effects simultaneously via a single
+	 * background-position animation (only one animation can own a property).
+	 *
+	 * Body has 5 background-image layers in order:
+	 *   [1] Plasma blob A  — violet radial, background-size: 200% 200%
+	 *   [2] Plasma blob B  — magenta radial, background-size: 180% 200%
+	 *   [3] Plasma blob C  — indigo radial,  background-size: 220% 180%
+	 *   [4] Beam sweep     — repeating-linear-gradient (scanline stripe), auto
+	 *   [5] Warmth         — radial-gradient (center glow), auto
+	 *
+	 * Layers 1–3 are sized larger than 100% of the viewport.
+	 * background-position then moves the blob center across the full screen —
+	 * e.g. position 20% 20% on a 200%×200% layer centers the blob at top-left;
+	 * position 80% 80% centers it near bottom-right. Changing that over time
+	 * at different rates per layer creates the organic, non-repeating plasma feel.
+	 *
+	 * Layer 4 (beam sweep) uses background-position Y to scroll the stripe
+	 * top→bottom over ~30s at roughly 13px/s, matching the old 9s/120px rate.
+	 *
+	 * Layer 5 (warmth) stays at 0 0 throughout — its center is baked into the
+	 * gradient definition via `at 50% 35%` so it doesn't need position changes.
+	 *
+	 *  positions:  [blob A]    [blob B]    [blob C]    [sweep]    [warmth]
+	 */
+	0%   { background-position: 20% 20%,  75% 70%,   50% 90%,   0 0,      0 0; }
+	25%  { background-position: 70% 10%,  20% 80%,   85% 15%,   0 -100px, 0 0; }
+	50%  { background-position: 30% 80%,  70% 20%,   15% 60%,   0 -200px, 0 0; }
+	75%  { background-position: 85% 55%,  40% 85%,   65% 30%,   0 -300px, 0 0; }
+	100% { background-position: 20% 20%,  75% 70%,   50% 90%,   0 -400px, 0 0; }
 }
 
 
@@ -250,9 +278,25 @@ body {
 	color: var(--fg-base);
 	min-width: 850px;
 	background-color: var(--bg-base);
-	/* Layer 1: electron beam sweep — faint bright stripe scrolling top→bottom
-	   Layer 2: phosphor-green radial warmth from the center — like a CRT's brighter center */
+	/*
+	 * Five background layers — order matters (first = topmost):
+	 *
+	 * [1] Plasma A — large violet blob (~200% viewport size, animated)
+	 * [2] Plasma B — medium magenta blob (~180-200% size, animated)
+	 * [3] Plasma C — medium indigo blob (~220x180% size, animated)
+	 *     These three create the lava-lamp effect. Violet/magenta chosen as
+	 *     the accent hue — it reads as "phosphor screen electrostatics" and
+	 *     contrasts with the P1 green without clashing.
+	 *
+	 * [4] Beam sweep — a single 1px-wide faint bright stripe every 60px,
+	 *     scrolled downward by crtBackground to simulate the electron gun scan.
+	 *
+	 * [5] Warmth — the existing green radial glow at center, static.
+	 */
 	background-image:
+		radial-gradient(ellipse 65% 55% at 50% 50%, rgba(90,  10, 140, 0.09) 0%, transparent 70%),
+		radial-gradient(ellipse 45% 65% at 50% 50%, rgba(130,  0, 100, 0.07) 0%, transparent 65%),
+		radial-gradient(ellipse 60% 45% at 50% 50%, rgba( 60,  0, 120, 0.08) 0%, transparent 60%),
 		repeating-linear-gradient(
 			0deg,
 			transparent 0px,
@@ -266,7 +310,10 @@ body {
 			rgba(10, 30, 10, 0.08) 45%,
 			transparent 70%
 		);
-	animation: phosphorFlicker 11.7s steps(1) infinite, crtBeamSweep 9s linear infinite;
+	/* Plasma layers are bigger than the viewport so position changes
+	   actually move the blob center across the full screen */
+	background-size: 200% 200%, 180% 200%, 220% 180%, auto, auto;
+	animation: phosphorFlicker 11.7s steps(1) infinite, crtBackground 30s ease-in-out infinite;
 }
 
 /* Text selection — inverted phosphor */
@@ -554,7 +601,7 @@ ul.thin li {
 
 /* Glitchy phosphor text layered over the logo image */
 #logo::after {
-	content: "GAZELLE";
+	content: '"GAZELLE"';           /* straight quotes, single-quoted CSS string */
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -562,9 +609,9 @@ ul.thin li {
 	pointer-events: none;
 	color: var(--fg-max);
 	font-family: var(--font);
-	font-size: 19px;
+	font-size: 22px;
 	font-weight: bold;
-	letter-spacing: 0.42em;
+	letter-spacing: 0.3em;         /* tightened slightly to fit quotes in 220px */
 	/* Chromatic aberration ghost trails — RGB fringing like a worn CRT */
 	text-shadow:
 		2px 0 rgba(255, 50, 100, 0.38),
@@ -717,6 +764,17 @@ ul.thin li {
 #userinfo_major .brackets:after {
 	font-weight: bold;
 	color: var(--border-mid);
+}
+
+/* Prevent the stats and secondary-info rows from wrapping mid-item.
+   Both bars are in the same centered #userinfo flow; without this
+   the last entry ("better" / class label) falls to a second line. */
+#userinfo_stats,
+#userinfo_minor {
+	white-space: nowrap;
+	display: inline-block;
+	font-size: 10px;
+	letter-spacing: 0.03em;
 }
 
 
