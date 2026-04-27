@@ -543,7 +543,7 @@ ul.thin li {
 	   their own background-color so text areas remain fully opaque. */
 	background-color: transparent;
 	position: relative;
-	top: 60px;
+	top: 80px;
 	min-width: 850px;
 	animation: fadeUp 0.4s ease-out 0.9s both;
 }
@@ -625,7 +625,7 @@ ul.thin li {
 
 #menu {
 	position: absolute;
-	top: 85px;
+	top: 105px;
 	width: 90%;
 	padding: 0;
 	text-align: center;
@@ -782,7 +782,7 @@ ul.thin li {
 
 #searchbars {
 	position: absolute;
-	top: 115px;
+	top: 135px;
 	width: 90%;
 	text-align: center;
 	background-color: var(--bg-mid);
@@ -849,8 +849,8 @@ ul.thin li {
 
 #alerts {
 	position: relative;
-	margin-top: 60px;
-	margin-bottom: -60px;
+	margin-top: 80px;
+	margin-bottom: -80px;
 	padding: 10px 0;
 	width: 100%;
 	background-color: var(--bg-mid);
