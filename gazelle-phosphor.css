@@ -2110,6 +2110,80 @@ input[type="checkbox"]:invalid + label {
 
 	/* Sidebar event calendar offset is desktop-only */
 	div.sidebar #event_div { margin-left: 0; }
+
+	/* ── Top 10 page ─────────────────────────────────────── */
+	/* Top 10 reuses .torrent_table but with a different column
+	   order than browse, so the browse-page nth-child hides above
+	   would clip the wrong cells. Restore everything inside #top10
+	   first, then re-apply a Top-10-appropriate hide pattern.
+
+	   Standard Gazelle Top 10 torrents columns:
+	     1 rank | 2 image | 3 torrent | 4 data | 5 snatches
+	     6 seeders | 7 leechers
+	   We keep rank, torrent, seeders. Drop image (cover art eats
+	   width on phone), data (size+time), snatches, leechers.
+	   nth-child is fragile — if a custom install reorders columns,
+	   adjust here rather than in the browse rule above. */
+	#top10 .torrent_table th,
+	#top10 .torrent_table td {
+		display: table-cell;
+	}
+	#top10 .torrent_table th:nth-child(2),
+	#top10 .torrent_table td:nth-child(2),
+	#top10 .torrent_table th:nth-child(4),
+	#top10 .torrent_table td:nth-child(4),
+	#top10 .torrent_table th:nth-child(5),
+	#top10 .torrent_table td:nth-child(5),
+	#top10 .torrent_table th:nth-child(7),
+	#top10 .torrent_table td:nth-child(7) {
+		display: none;
+	}
+
+	/* Top 10 users — typical column order:
+	     1 rank | 2 user | 3 joined | 4 uploaded | 5 downloaded
+	     6 ratio | 7 class
+	   Keep rank, user, ratio. */
+	#top10 table.user_list th:nth-child(3),
+	#top10 table.user_list td:nth-child(3),
+	#top10 table.user_list th:nth-child(4),
+	#top10 table.user_list td:nth-child(4),
+	#top10 table.user_list th:nth-child(5),
+	#top10 table.user_list td:nth-child(5),
+	#top10 table.user_list th:nth-child(7),
+	#top10 table.user_list td:nth-child(7) {
+		display: none;
+	}
+
+	/* Quantity selector (10/100/250) — let it wrap and breathe */
+	#top10 .top10_quantity_links,
+	#top10 .linkbox {
+		font-size: 11px;
+		padding: 6px 4px;
+		line-height: 1.8;
+	}
+	#top10 .linkbox a { white-space: nowrap; }
+
+	/* Sub-section h3 between tables — make them feel like
+	   terminal section headers at this size */
+	#top10 h3 {
+		font-size: 12px;
+		text-align: center;
+		text-transform: uppercase;
+		letter-spacing: 0.14em;
+		color: var(--fg-bright);
+		text-shadow: 0 0 8px var(--fg-dim);
+		padding: 8px 0 3px;
+		margin: 6px 0 2px;
+	}
+	#top10 h3::before { content: "▸ "; color: var(--amber); }
+
+	/* Tags page — the giant tag cloud uses bbcode size classes
+	   that scale up to 3em. On phone that wraps awkwardly so cap
+	   the largest sizes back closer to body text. */
+	#top10 span.size7  { font-size: 1.5em; }
+	#top10 span.size8  { font-size: 1.7em; }
+	#top10 span.size9  { font-size: 1.9em; }
+	#top10 span.size10 { font-size: 2.1em; }
 }
 
 
@@ -2177,4 +2251,24 @@ input[type="checkbox"]:invalid + label {
 
 	/* Block scroll-chaining bounce that breaks the fixed CRT layers */
 	html, body { overscroll-behavior-y: none; }
+
+	/* ── Top 10 — iPhone 12 mini portrait extras ─────────── */
+	/* At ~360 effective, even the 3-column rank+torrent+seeders
+	   layout is tight. Tighten cell padding further and shrink
+	   the rank column so the torrent title gets the most room. */
+	#top10 .torrent_table td,
+	#top10 .torrent_table th { padding: 2px 4px; font-size: 10px; }
+
+	/* Rank column: just enough for "10." */
+	#top10 .torrent_table th:first-child,
+	#top10 .torrent_table td:first-child {
+		width: 24px;
+		text-align: right;
+		color: var(--amber);
+		font-weight: bold;
+	}
+
+	#top10 .top10_quantity_links,
+	#top10 .linkbox  { font-size: 10px; padding: 4px 2px; }
+	#top10 h3        { font-size: 11px; letter-spacing: 0.1em; padding: 6px 0 2px; }
 }
