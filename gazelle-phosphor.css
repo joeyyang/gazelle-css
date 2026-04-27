@@ -765,13 +765,14 @@ ul.thin li {
 	color: var(--border-mid);
 }
 
-/* Prevent the stats and secondary-info rows from wrapping mid-item.
-   Both bars are in the same centered #userinfo flow; without this
-   the last entry ("better" / class label) falls to a second line. */
+/* Stats and secondary-info each get their own line. Block display
+   forces a clean break between the two rows; nowrap inside each row
+   still prevents mid-item wrapping (e.g. "better" / class label
+   falling off the end). */
 #userinfo_stats,
 #userinfo_minor {
 	white-space: nowrap;
-	display: inline-block;
+	display: block;
 	font-size: 10px;
 	letter-spacing: 0.03em;
 }
@@ -1947,4 +1948,233 @@ input[type="checkbox"]:invalid + label {
 	font-family: var(--font);
 	font-size: 18px;
 	line-height: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE — narrow viewport browsing
+   Tuned for iPhone 12 mini: 375×812 portrait, 812×375 landscape
+   (CSS pixels, DPR 3). Three breakpoints stack:
+
+     ≤900px  lift the 850px desktop floor only — covers
+              landscape phone (812) and small windows
+     ≤768px  full mobile pass: stack header, drop columns
+     ≤480px  iPhone 12 mini portrait tightening (375 effective)
+
+   Requires <meta name="viewport" content="width=device-width,
+   initial-scale=1"> in the HTML; without it iOS Safari renders
+   at 980px and shrinks. CRT overlays (scanlines, vignette,
+   flicker, plasma) work fine as-is at every size.
+   ═══════════════════════════════════════════════════════════ */
+
+
+/* ── ≤900px — lift the desktop min-width floors ─────────────
+   At iPhone 12 mini landscape (812px) and other narrow desktop
+   windows we don't want a horizontal scrollbar from the 850px
+   min-widths, but the desktop layout still mostly works. */
+
+@media (max-width: 900px) {
+	body, #content, #menu, #userinfo, #searchbars, #alerts {
+		min-width: 0;
+	}
+}
+
+
+@media (max-width: 768px) {
+
+	/* ── Lift the 850px floor everywhere it's set ──────────── */
+	body         { min-width: 0; font-size: 13px; }
+	#content     { min-width: 0; top: 0; }
+	#menu        { min-width: 0; }
+	#userinfo    { min-width: 0; }
+	#searchbars  { min-width: 0; }
+	#alerts      { min-width: 0; margin-top: 8px; margin-bottom: 0; }
+
+	#wrapper     { width: 96%; }
+	.thin        { width: 100%; }
+	.widethin    { width: 100% !important; }
+
+	/* ── Logo shrink ───────────────────────────────────────── */
+	#logo        { width: 170px; height: 40px; background-size: contain; }
+	#logo a      { width: 170px; height: 40px; }
+	#logo::after { font-size: 17px; letter-spacing: 0.18em; }
+
+	/* ── Userinfo bar — stack into normal flow ─────────────── */
+	#userinfo {
+		padding: 4px 6px;
+		font-size: 10px;
+		line-height: 1.6;
+	}
+	#userinfo_username,
+	#userinfo_major {
+		position: static;
+		display: block;
+		text-align: center;
+		margin: 1px 0;
+	}
+	#userinfo ul {
+		display: block;
+		margin: 1px 0;
+		padding: 0;
+	}
+	#userinfo ul li {
+		line-height: 1.5;
+	}
+	#userinfo_stats,
+	#userinfo_minor {
+		white-space: normal;
+		display: block;
+		text-align: center;
+	}
+
+	/* ── Menu — drop absolute positioning, allow wrap ──────── */
+	#menu {
+		position: static;
+		width: 100%;
+		padding: 2px 0;
+		letter-spacing: 0.06em;
+	}
+	#menu ul li a {
+		display: inline-block;
+		padding: 4px 7px;
+	}
+
+	/* ── Searchbars — same treatment ───────────────────────── */
+	#searchbars {
+		position: static;
+		width: 100%;
+		padding: 4px 6px;
+	}
+	#searchbars ul li {
+		display: inline-block;
+		margin: 2px 1px;
+	}
+
+	.alertbar { width: auto; max-width: 100%; }
+
+	/* ── Layout columns stack ─────────────────────────────── */
+	.sidebar     { float: none; width: 100%; margin-top: 8px; }
+	.main_column { width: 100%; }
+
+	/* ── Tables — shrink padding, allow scroll fallback ───── */
+	td, th { padding: 2px 4px; font-size: 11px; }
+	table  { font-size: 11px; }
+
+	/* Torrent browse — keep title + size + seeders only.
+	   Standard Gazelle column order:
+	     1 cat icon | 2 title | 3 files | 4 comments | 5 time
+	     6 size     | 7 snatched | 8 seeders | 9 leechers
+	   nth-child is fragile if the markup ever drifts, but it's the
+	   only CSS-only way to drop columns without HTML hooks. */
+	.torrent_table th:nth-child(1),
+	.torrent_table td:nth-child(1),
+	.torrent_table th:nth-child(3),
+	.torrent_table td:nth-child(3),
+	.torrent_table th:nth-child(4),
+	.torrent_table td:nth-child(4),
+	.torrent_table th:nth-child(5),
+	.torrent_table td:nth-child(5),
+	.torrent_table th:nth-child(7),
+	.torrent_table td:nth-child(7),
+	.torrent_table th:nth-child(9),
+	.torrent_table td:nth-child(9) {
+		display: none;
+	}
+
+	/* Hide DL/RP/PL action buttons since this is browse-only */
+	.torrent_action_buttons { display: none; }
+
+	/* ── Filter / search forms ─────────────────────────────── */
+	.filter_torrents { width: 100%; }
+	.filter_torrents input[type="text"],
+	.filter_torrents input[type="search"],
+	.filter_torrents select,
+	.filter_torrents textarea {
+		max-width: 100%;
+	}
+
+	/* ── Forum posts — drop fixed avatar column ───────────── */
+	td.avatar                  { width: 48px; }
+	table.forum_post td.body   { max-width: none; }
+	tbody                      { max-width: none; }
+
+	/* ── Permissions / wide forms shrink ──────────────────── */
+	.permissions,
+	.permission_head        { width: 100%; }
+	.permission_container   { float: none; width: 100%; }
+	.edit_changelog textarea{ width: 100%; }
+
+	/* ── Drop chrome that wastes space on small screens ───── */
+	#extra5 { display: none; }    /* SYS:OK cursor */
+	#extra6 { display: none; }    /* corner brackets */
+
+	/* Sidebar event calendar offset is desktop-only */
+	div.sidebar #event_div { margin-left: 0; }
+}
+
+
+/* ── ≤480px — iPhone 12 mini portrait (375 effective) ───────
+   Effective usable width is ~360px after browser chrome and
+   default body padding. Everything tightens further: smaller
+   fonts, less padding, shorter logo, notch-aware safe-area
+   insets so fixed-position chrome doesn't sit under the notch
+   in landscape lock or the home indicator. */
+
+@media (max-width: 480px) {
+
+	body { font-size: 12px; }
+
+	/* Logo — about a third of viewport so it doesn't dominate */
+	#logo, #logo a { width: 130px; height: 30px; background-size: contain; }
+	#logo::after   { font-size: 13px; letter-spacing: 0.14em; }
+
+	/* Userinfo — minimum legible size, tight rows */
+	#userinfo {
+		padding: 3px max(4px, env(safe-area-inset-left)) 3px max(4px, env(safe-area-inset-right));
+		font-size: 10px;
+		line-height: 1.5;
+	}
+	#userinfo ul     { margin: 0; }
+	#userinfo ul li  { margin: 0 0.15em; padding: 1px; line-height: 1.4; }
+
+	/* Menu nav — pack tighter, soften letter-spacing for fit */
+	#menu             { font-size: 10px; letter-spacing: 0.04em; padding: 1px 0; }
+	#menu ul li a     { padding: 4px 6px; }
+
+	/* Searchbars — single search input fills width */
+	#searchbars                  { padding: 3px 4px; }
+	#searchbars input            { width: 100%; box-sizing: border-box; }
+	#searchbars ul li form input { width: 100%; }
+
+	/* Alerts — flatten the 380px fixed width */
+	.alertbar { padding: 6px 8px; font-size: 10px; }
+
+	/* Boxes — tighter chrome to give content room */
+	.box, .box2 { font-size: 10px; }
+	.head       { padding: 2px 5px; font-size: 9px; letter-spacing: 0.08em; }
+	.body       { padding: 3px 5px; }
+	.pad        { padding: 5px; }
+
+	/* Headings */
+	h2 { font-size: 12px; padding: 3px 0; letter-spacing: 0.12em; }
+	h4 { font-size: 10px; }
+
+	/* Tables — cram everything */
+	td, th       { padding: 2px 3px; font-size: 10px; }
+	table        { font-size: 10px; }
+	.colhead,
+	.colhead_dark{ font-size: 9px; letter-spacing: 0.04em; }
+
+	/* Torrent table — reclaim width for the title */
+	.torrent_table td, .torrent_table th { padding: 3px 4px; }
+
+	/* Forum post avatars stay tiny */
+	td.avatar { width: 38px; padding: 2px; }
+
+	/* Boot fade text — keep on one line at narrow width */
+	#extra4 span::before { font-size: 11px; letter-spacing: 0.18em; }
+	#extra4 span::after  { font-size: 9px;  letter-spacing: 0.12em; margin-top: 6px; }
+
+	/* Block scroll-chaining bounce that breaks the fixed CRT layers */
+	html, body { overscroll-behavior-y: none; }
 }
